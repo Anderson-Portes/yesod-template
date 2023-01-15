@@ -1,0 +1,30 @@
+name: yesod-todo
+version: "0.0.0"
+
+dependencies:
+  - base
+  - yesod-core
+  - yesod
+  - yesod-static
+  - persistent-postgresql
+  - monad-logger
+  - text
+  - SHA
+  - bytestring
+
+# The library contains all of our application code. The executable
+# defined below is just a thin wrapper.
+library:
+  source-dirs: src
+
+# Runnable executable for our application
+executables:
+  yesod-todo:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - yesod-todo

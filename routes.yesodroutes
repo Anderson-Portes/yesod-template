@@ -1,0 +1,5 @@
+/              HomeR GET
+/auth/login LoginR GET POST
+/auth/register RegisterR GET POST
+/auth/logout LogoutR POST
+/static StaticR Static getStatic
