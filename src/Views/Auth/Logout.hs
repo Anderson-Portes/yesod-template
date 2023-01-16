@@ -7,6 +7,7 @@ module Views.Auth.Logout where
 
 import Data.Text
 import Foundation
+import Middlewares.Pages (pageNeedAuth)
 import Yesod
 import Yesod.Core
 
