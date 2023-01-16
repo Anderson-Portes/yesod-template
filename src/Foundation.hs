@@ -15,17 +15,14 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-{-# HLINT ignore "Use isJust" #-}
-
 module Foundation where
 
+import Data.Maybe (isJust)
 import Data.Text
 import Database.Persist.Postgresql (ConnectionPool, SqlBackend, runSqlPool)
 import Yesod
 import Yesod.Core
 import Yesod.Static (Static, staticFiles)
-
-data Auth = Authenticated | Unanthenticated deriving (Show, Eq)
 
 staticFiles "static"
 
@@ -42,6 +39,8 @@ share
     deriving Show
 |]
 
+data Auth = Authenticated | Unanthenticated deriving (Eq)
+
 data App = App {connPool :: ConnectionPool, getStatic :: Static}
 
 mkYesodData "App" $(parseRoutesFile "routes.yesodroutes")
@@ -49,32 +48,7 @@ mkYesodData "App" $(parseRoutesFile "routes.yesodroutes")
 userIsLogged :: Handler Auth
 userIsLogged = do
   session <- lookupSession "login"
-  return (if session /= Nothing then Authenticated else Unanthenticated)
-
-redirectUserByAuthState :: Auth -> Handler Html
-redirectUserByAuthState Authenticated = redirect HomeR
-redirectUserByAuthState _ = redirect LoginR
-
-renderPageByAuthState :: Auth -> Widget -> Handler Html
-renderPageByAuthState needAuth widget = do
-  isLogged <- userIsLogged
-  if needAuth == isLogged
-    then defaultLayout widget
-    else redirectUserByAuthState isLogged
-
-pageNeedAuth :: Widget -> Handler Html
-pageNeedAuth = renderPageByAuthState Authenticated
-
-pageNeedGuest :: Widget -> Handler Html
-pageNeedGuest = renderPageByAuthState Unanthenticated
-
-renderJsonByAuthState :: Auth -> Handler Value -> Handler Value
-renderJsonByAuthState needAuth f = do
-  isLogged <- userIsLogged
-  let msg = if needAuth == Authenticated then "You need to be authenticated" else "You are already authenticated"
-  if needAuth == isLogged
-    then f
-    else return $ object ["error" .= pack msg]
+  return $ if isJust session then Authenticated else Unanthenticated
 
 navbar :: Bool -> Widget
 navbar isLogged =

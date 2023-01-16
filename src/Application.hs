@@ -5,11 +5,11 @@
 
 module Application where
 
-import Auth.Login (getLoginR, postLoginR)
-import Auth.Logout (postLogoutR)
-import Auth.Register (getRegisterR, postRegisterR)
 import Foundation
-import Home
+import Views.Auth.Login (getLoginR, postLoginR)
+import Views.Auth.Logout (postLogoutR)
+import Views.Auth.Register (getRegisterR, postRegisterR)
+import Views.Home (getHomeR)
 import Yesod.Core
 
 mkYesodDispatch "App" resourcesApp

@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 
-module Home where
+module Views.Home where
 
 import Foundation
 import Yesod.Core

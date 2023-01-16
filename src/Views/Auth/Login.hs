@@ -1,12 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 
-module Auth.Login where
+module Views.Auth.Login where
 
-import Components.Card
 import Data.Text
 import Foundation
+import Middlewares.Json (jsonNeedGuest)
+import Middlewares.Pages (pageNeedGuest)
+import Requests.Auth.Login (LoginRequest (LoginRequest, getEmail, getPassword))
 import Utils.Global (jsonErrors, jsonSuccess, sha1Text)
+import Views.Components.Card (card)
+import Views.Components.TogglePasswordButton (togglePasswordButton)
 import Yesod
 import Yesod.Core
 
@@ -21,8 +25,7 @@ loginForm = card "Login" $ do
       <input type=password name=password .form-control #password placeholder=Password required>
       <label for=password>Password
     <div .text-end.w-100>
-      <button type=button #show-password-btn .btn.btn-sm.btn-outline-primary>
-        <i .bi.bi-eye-fill>
+      ^{togglePasswordButton}
     <p .text-danger #error-msg>
     <button .btn.btn-sm.btn-outline-primary>
       <i .bi.bi-box-arrow-in-right.me-2>
@@ -38,9 +41,10 @@ getLoginR = pageNeedGuest $ do
   |]
 
 postLoginR :: Handler Value
-postLoginR = renderJsonByAuthState Unanthenticated $ do
-  email <- runInputPost (ireq textField "email")
-  password <- runInputPost (ireq textField "password")
+postLoginR = jsonNeedGuest $ do
+  request <- requireCheckJsonBody :: Handler LoginRequest
+  let email = getEmail request
+  let password = getPassword request
   userExists <- runDB $ getBy (UniqueEmail email)
   case userExists of
     Just (Entity userId userData) -> handleLogin password userData userId

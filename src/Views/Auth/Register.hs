@@ -8,13 +8,16 @@
 {-# HLINT ignore "Use fewer LANGUAGE pragmas" #-}
 {-# HLINT ignore "Unused LANGUAGE pragma" #-}
 
-module Auth.Register where
+module Views.Auth.Register where
 
-import Components.Card
-import Control.Exception (handle)
 import Data.Text
 import Foundation
+import Middlewares.Json (jsonNeedGuest)
+import Middlewares.Pages (pageNeedGuest)
+import Requests.Auth.Register (RegisterRequest (RegisterRequest, getEmail, getName, getPassword, getPasswordConfirmation))
 import Utils.Global (jsonErrors, jsonSuccess, sha1Text, stringListToText)
+import Views.Components.Card (card)
+import Views.Components.TogglePasswordButton (togglePasswordButton)
 import Yesod
 import Yesod.Core
 
@@ -35,8 +38,7 @@ registerForm = card "Register" $ do
       <input type=password name=password_confirmation .form-control #password_confirmation placeholder=Password required min=8>
       <label for=password_confirmation>Password Confirmation
     <div .text-end.w-100>
-      <button type=button #show-password-btn .btn.btn-sm.btn-outline-primary>
-        <i .bi.bi-eye-fill>
+      ^{togglePasswordButton}
     <p .text-danger #error-msg>
     <button .btn.btn-sm.btn-outline-primary>
       <i .bi.bi-box-arrow-in-right.me-2>
@@ -52,14 +54,15 @@ getRegisterR = pageNeedGuest $ do
   |]
 
 postRegisterR :: Handler Value
-postRegisterR = renderJsonByAuthState Unanthenticated $ do
-  name <- runInputPost (ireq textField "name")
-  email <- runInputPost (ireq textField "email")
-  password <- runInputPost (ireq textField "password")
-  passwordConfirm <- runInputPost (ireq textField "password_confirmation")
+postRegisterR = jsonNeedGuest $ do
+  request <- requireCheckJsonBody :: Handler RegisterRequest
+  let name = getName request
+  let email = getEmail request
+  let password = getPassword request
+  let passwordConfirm = getPasswordConfirmation request
   userExists <- runDB $ getBy (UniqueEmail email)
   case userExists of
-    Nothing -> do
+    Nothing ->
       if password == passwordConfirm
         then handleRegister name email password
         else jsonErrors ["Passwords must be the same!"]

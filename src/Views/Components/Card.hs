@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 
-module Components.Card where
+module Views.Components.Card where
 
 import Data.Text (Text)
 import Foundation (Widget)

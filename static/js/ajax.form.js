@@ -7,9 +7,8 @@ const renderErrors = errors => {
 
 const formToJson = () => {
   const data = {};
-  const inputs = form.querySelectorAll('input');
-  inputs.forEach(i => data[i.name] = i.value);
-  return data;
+  form.querySelectorAll('input').forEach(i => data[i.name] = i.value);
+  return JSON.stringify(data);
 }
 
 const clearMessages = () => document.querySelectorAll('.message').forEach(e => e.remove());
@@ -24,11 +23,9 @@ const renderSuccess = (message) => {
 const handleSubmit = async e => {
   e.preventDefault();
   clearMessages();
-  const method = form.method || 'GET';
-  const body = new FormData(form);
-  console.log(formToJson());
   try {
-    const data = await fetch(form.action, { method, body, headers: {
+    const data = await fetch(form.action, { method: form.method || 'GET', body: formToJson(), headers: {
+      "Content-Type": "application/json",
       "Accept": "application/json"
     } });
     const json = await data.json();
